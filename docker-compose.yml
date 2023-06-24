@@ -1,0 +1,64 @@
+version: "3.2"
+services:
+  php:
+    image: bindwin/lifeinvader-php:4.1.4
+    volumes:
+      - data-prov:/var/www/html/
+    restart: always
+    networks:
+      - backend
+    container_name: php
+  apache:
+    image: bindwin/lifeinvader-apache:4.1.4
+    restart: always
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - data-prov:/var/www/html/
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+    container_name: apache
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+    restart: always
+    depends_on:
+      - mysql
+    networks:
+      - backend
+  mysql:
+    image: mysql:${MYSQL_VERSION:-latest}
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+            - data:/var/lib/mysql
+    networks:
+      - backend
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    command: --sql_mode="NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+    cap_add:
+      - SYS_NICE
+    security_opt:
+      - seccomp:unconfined
+    container_name: mysql
+networks:
+  frontend:
+  backend:
+volumes:
+    data:
+    data-prov:
