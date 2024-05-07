@@ -1,7 +1,7 @@
 version: "3.2"
 services:
   php:
-    image: bindwin/lifeinvader-php:4.2.1
+    image: bindwin/lifeinvader-php:4.3.3
     volumes:
       - data-prov:/var/www/html/
     restart: always
@@ -9,7 +9,7 @@ services:
       - backend
     container_name: php
   apache:
-    image: bindwin/lifeinvader-apache:4.2.1
+    image: bindwin/lifeinvader-apache:4.3.3
     restart: always
     depends_on:
       - php
